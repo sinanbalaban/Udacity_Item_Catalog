@@ -21,12 +21,9 @@ I recommend the user use a virtual machine to ensure they are using the same env
 3 Clone this repo into the `catalog/` directory found in the Vagrant directory
 4 Open your terminal (my terminal is Git Bash), Go to vagrant location directory and start the virtual machine with `vagrant up` command in this directory.
 5 Use `vagrant ssh` command for login, after the virtual machine is loaded.
-6 Create database schema of project. You will use `python databsase_setup.py` command.
-7 Run command below 
-    `sudo pip install werkzeud==0.8.3`
-    `sudo pip install flask==0.9`
-    `sudo pip install Flask-Login==1.0.3`
-8 Run application with `python application.py` from within its directory
-9 Go to `http://localhost:8000/categories` from your browser for access
+6 Run this command for requirements `sudo pip install -r requirements.txt`
+7 Create database schema of project. You will use `python database_setup.py` command.
+8 Run application with `python app.py` from within its directory
+9 Go to `http://localhost:5000/` from your browser for access
 
 Thanks
