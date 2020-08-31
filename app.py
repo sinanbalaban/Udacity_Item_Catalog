@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request, redirect,
+jsonify, url_for, flash
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import lazyload
@@ -47,8 +48,6 @@ def fbconnect():
         return response
     access_token = request.data
     print "access token received %s " % access_token
-
-
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
@@ -57,12 +56,9 @@ def fbconnect():
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-
-
     # Use token to get user info from API
     userinfo_url = "https://graph.facebook.com/v2.8/me"
     token = result.split(',')[0].split(':')[1].replace('"', '')
-
     url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -109,7 +105,7 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -167,7 +163,7 @@ def gconnect():
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),200)
+        response = make_response(json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
 
     # Store the access token in the session for later use.
@@ -233,6 +229,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
 # Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
@@ -255,6 +252,7 @@ def disconnect():
         flash("You were not logged in")
         return redirect(url_for('showCatalogItems'))
 
+
 # User Helper Functions
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session['email'], picture=login_session['picture'])
@@ -275,6 +273,7 @@ def getUserID(email):
         return user.id
     except:
         return None
+
 
 # JSON APIs to view Item Catalog & Categories BEGIN
 @app.route('/categories/JSON')
@@ -315,15 +314,15 @@ def showCatalogItems():
     categories = session.query(Category).all()
     latest_catalogs = session.query(CatalogItem).order_by(CatalogItem.id.desc()).limit(10)
     if 'username' not in login_session:
-        return render_template('publicIndex.html', categories=categories, latest_catalogs = latest_catalogs)
+        return render_template('publicIndex.html', categories=categories, latest_catalogs=latest_catalogs)
     else:
-        return render_template('index.html', categories=categories, latest_catalogs = latest_catalogs)
+        return render_template('index.html', categories=categories, latest_catalogs=latest_catalogs)
 
 
 # Get catalog item
 @app.route('/catalog/<int:catalog_id>', methods=['GET'])
 def getCatalogItem(catalog_id):
-    catalogItem = session.query(CatalogItem).filter_by(id = catalog_id).one()    
+    catalogItem = session.query(CatalogItem).filter_by(id=catalog_id).one()
     if 'username' not in login_session:
         return render_template('publicCatalogItem.html', item=catalogItem)
 
@@ -372,7 +371,7 @@ def editCatalogItem(catalog_id):
         session.add(editedItem)
         session.commit()
         flash('%s catalog item successfully edited' % editedItem.name, 'success')
-        return redirect(url_for('getCatalogItem', catalog_id = editedItem.id))
+        return redirect(url_for('getCatalogItem', catalog_id=editedItem.id))
     else:
         return render_template('editCatalogItem.html', categories=categories, item=editedItem)
 
@@ -394,17 +393,18 @@ def deleteCatalogItem(catalog_id):
     else:
         return render_template('deleteCatalogItem.html', item=itemToDelete)
 
+
 # Get category item
 @app.route('/category/<int:category_id>', methods=['GET'])
 def getCategory(category_id):
-    category = session.query(Category).filter_by(id = category_id).one()
-    catalogItems = session.query(CatalogItem).filter_by(category_id = category_id)
+    category = session.query(Category).filter_by(id=category_id).one()
+    catalogItems = session.query(CatalogItem).filter_by(category_id=category_id)
     quantity = catalogItems.count()
     if 'username' not in login_session:
-        return render_template('publicCategory.html', category = category, catalogItems=catalogItems, quantity = quantity)
-        #return redirect('/login')
+        return render_template('publicCategory.html', category=category, catalogItems=catalogItems, quantity=quantity)
+        # return redirect('/login')
     else:
-        return render_template('category.html', category = category, catalogItems=catalogItems, quantity = quantity)
+        return render_template('category.html', category=category, catalogItems=catalogItems, quantity=quantity)
 
 
 # New category
@@ -415,7 +415,7 @@ def newCategory():
     if request.method == 'POST':
         newCategory = Category(cat_name=request.form['name'], user_id=login_session['user_id'])
         session.add(newCategory)
-        flash('%s catagory successfully created' % newCategory.cat_name,'success')
+        flash('%s catagory successfully created' % newCategory.cat_name, 'success')
         session.commit()
         return redirect(url_for('showCatalogItems'))
     else:
@@ -433,7 +433,7 @@ def editCategory(category_id):
     if request.method == 'POST':
         if request.form['name']:
             editedCategory.cat_name = request.form['name']
-            flash('%s category successfully edited' % editedCategory.cat_name,'success')
+            flash('%s category successfully edited' % editedCategory.cat_name, 'success')
             return redirect(url_for('showCatalogItems'))
     else:
         return render_template('editCategory.html', category=editedCategory)
@@ -449,7 +449,7 @@ def deleteCategory(category_id):
         return "<script>function myFunction() {alert('You are not authorized to delete this category.');}</script><body onload='myFunction()'>"
     if request.method == 'POST':
         session.delete(categoryToDelete)
-        flash('%s category successfully deleted' % categoryToDelete.cat_name,'success')
+        flash('%s category successfully deleted' % categoryToDelete.cat_name, 'success')
         session.commit()
         return redirect(url_for('showCatalogItems'))
     else:
